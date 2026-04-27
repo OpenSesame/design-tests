@@ -60,3 +60,25 @@
 body { background: var(--surface-secondary); }
 
 img { display: block; }
+
+@keyframes marquee {
+  0%   { transform: translateX(0) }
+  100% { transform: translateX(-50%) }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes slideInFromTop {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}

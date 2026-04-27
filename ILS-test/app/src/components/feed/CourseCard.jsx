@@ -9,7 +9,7 @@ export default function CourseCard({ item }) {
 
   return (
     <div
-      onClick={() => navigate(`/course/${item.id}`)}
+      onClick={() => navigate(`/watch/${item.id}`)}
       style={{
         background: 'var(--surface-primary)',
         border: '1px solid var(--outline-tertiary)',

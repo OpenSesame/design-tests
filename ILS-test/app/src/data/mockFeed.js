@@ -12,6 +12,12 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 1.0,
+    series: [
+      { id: 1, caption: 'Most feedback lands wrong — here\'s why', thumbnailUrl: 'https://picsum.photos/seed/fb1/400/700' },
+      { id: 2, caption: 'The framing shift that changes everything', thumbnailUrl: 'https://picsum.photos/seed/fb2/400/700' },
+      { id: 3, caption: 'What to say when the stakes are high', thumbnailUrl: 'https://picsum.photos/seed/fb3/400/700' },
+      { id: 4, caption: 'Turning feedback into a habit', thumbnailUrl: 'https://picsum.photos/seed/fb4/400/700' },
+    ],
   },
   {
     id: 'f-002',
@@ -49,6 +55,13 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 0.95,
+    series: [
+      { id: 1, caption: 'Why certainty is the wrong goal', thumbnailUrl: 'https://picsum.photos/seed/lu1/400/700' },
+      { id: 2, caption: 'The framework for deciding without full information', thumbnailUrl: 'https://picsum.photos/seed/lu2/400/700' },
+      { id: 3, caption: 'Communicating clearly when you don\'t have answers', thumbnailUrl: 'https://picsum.photos/seed/lu3/400/700' },
+      { id: 4, caption: 'Keeping your team stable under pressure', thumbnailUrl: 'https://picsum.photos/seed/lu4/400/700' },
+      { id: 5, caption: 'Recovery: when the path changes mid-journey', thumbnailUrl: 'https://picsum.photos/seed/lu5/400/700' },
+    ],
   },
   {
     id: 'f-005',
@@ -165,6 +178,13 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 0.7,
+    series: [
+      { id: 1, caption: 'Reframing negotiation as problem-solving', thumbnailUrl: 'https://picsum.photos/seed/neg1/400/700' },
+      { id: 2, caption: 'Establishing your BATNA before you walk in', thumbnailUrl: 'https://picsum.photos/seed/neg2/400/700' },
+      { id: 3, caption: 'Anchoring: who moves first and why it matters', thumbnailUrl: 'https://picsum.photos/seed/neg3/400/700' },
+      { id: 4, caption: 'Managing concessions without losing ground', thumbnailUrl: 'https://picsum.photos/seed/neg4/400/700' },
+      { id: 5, caption: 'Reaching agreements that actually hold', thumbnailUrl: 'https://picsum.photos/seed/neg5/400/700' },
+    ],
   },
   {
     id: 'f-014',
