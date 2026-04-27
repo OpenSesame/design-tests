@@ -6,6 +6,7 @@ import ProfilePage from './pages/Profile/ProfilePage'
 import HCAPage from './pages/HCA/HCAPage'
 import PlayerPage from './pages/Player/PlayerPage'
 import CourseDetailPage from './pages/Course/CourseDetailPage'
+import WatchPage from './pages/Watch/WatchPage'
 import AppShell from './components/layout/AppShell'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/watch/:id" element={<WatchPage />} />
           <Route path="/player/:id" element={<PlayerPage />} />
           <Route path="/course/:id" element={<CourseDetailPage />} />
           <Route element={<AppShell />}>

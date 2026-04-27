@@ -37,7 +37,7 @@ function ImageChips({ type, duration }) {
 function HeroMicroContent({ item }) {
   const navigate = useNavigate()
   return (
-    <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/player/${item.id}`)}>
+    <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/watch/${item.id}`)}>
       <div style={{ position: 'relative', height: 220, overflow: 'hidden' }}>
         <img src={item.thumbnailUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{
@@ -89,7 +89,7 @@ function HeroCourse({ item }) {
     : item.duration
 
   return (
-    <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/course/${item.id}`)}>
+    <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/watch/${item.id}`)}>
       <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
         <img src={item.thumbnailUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{

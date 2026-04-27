@@ -4,7 +4,7 @@ export default function MicroContentCard({ item }) {
   const navigate = useNavigate()
   return (
     <div
-      onClick={() => navigate(`/player/${item.id}`)}
+      onClick={() => navigate(`/watch/${item.id}`)}
       style={{
         background: 'var(--surface-primary)',
         border: '1px solid var(--outline-tertiary)',
