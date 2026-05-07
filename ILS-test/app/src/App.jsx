@@ -7,6 +7,8 @@ import HCAPage from './pages/HCA/HCAPage'
 import PlayerPage from './pages/Player/PlayerPage'
 import CourseDetailPage from './pages/Course/CourseDetailPage'
 import WatchPage from './pages/Watch/WatchPage'
+import ManagerPage from './pages/Manager/ManagerPage'
+import TeamMemberPage from './pages/Manager/TeamMemberPage'
 import AppShell from './components/layout/AppShell'
 
 function App() {
@@ -15,13 +17,17 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/watch/:id" element={<WatchPage />} />
+          <Route element={<AppShell />}>
+            <Route path="/watch/:id" element={<WatchPage />} />
+          </Route>
           <Route path="/player/:id" element={<PlayerPage />} />
           <Route path="/course/:id" element={<CourseDetailPage />} />
           <Route element={<AppShell />}>
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/hca" element={<HCAPage />} />
+            <Route path="/manager" element={<ManagerPage />} />
+            <Route path="/team-member/:id" element={<TeamMemberPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
