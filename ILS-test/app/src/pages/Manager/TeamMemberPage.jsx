@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { teamMembers, catalogSuggestions, skillInfo, statusConfig } from '../../data/teamData'
+import SkillDetailSheet from './SkillDetailSheet'
 
 function BackIcon() {
   return (
@@ -24,10 +25,10 @@ function SectionLabel({ children }) {
 
 function ProgressBar({ value, color }) {
   return (
-    <div style={{ height: 4, borderRadius: 99, background: 'var(--outline-tertiary)', overflow: 'hidden' }}>
+    <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' }}>
       <div style={{
         height: '100%', width: `${Math.min(value, 100)}%`,
-        background: color || 'var(--brand)', borderRadius: 99,
+        background: color || 'rgba(255,255,255,0.7)', borderRadius: 99,
         transition: 'width 0.4s ease',
       }} />
     </div>
@@ -205,11 +206,33 @@ export default function TeamMemberPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [assignOpen, setAssignOpen] = useState(false)
+  const [selectedSkill, setSelectedSkill] = useState(null)
+  const [gapPage, setGapPage] = useState(0)
+  const gapScrollRef = useRef(null)
+
+  useEffect(() => {
+    const el = gapScrollRef.current
+    if (!el) return
+    const onScroll = () => {
+      const page = Math.round(el.scrollLeft / el.offsetWidth)
+      setGapPage(page)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  })
 
   const member = teamMembers.find(m => m.id === Number(id))
   if (!member) return null
 
   const sc = statusConfig[member.status]
+
+  const goToGapPage = (newPage) => {
+    if (!gapScrollRef.current) return
+    const totalPages = Math.ceil(member.skillGaps.length / 3)
+    const page = Math.max(0, Math.min(newPage, totalPages - 1))
+    setGapPage(page)
+    gapScrollRef.current.scrollTo({ left: page * gapScrollRef.current.offsetWidth, behavior: 'smooth' })
+  }
 
   const tabStyle = (tab) => ({
     background: 'none', border: 'none', padding: '10px 0', margin: 0,
@@ -281,9 +304,8 @@ export default function TeamMemberPage() {
           {(() => {
             const assessed = member.skills.filter(s => s.proficiency >= 70)
             const trained  = member.skills.filter(s => s.proficiency >= 45 && s.proficiency < 70)
-            const gaps     = member.skills.filter(s => s.proficiency < 45)
 
-            const Group = ({ label, color, bg, items }) => items.length === 0 ? null : (
+            const Group = ({ label, color, bg, items, onSkillTap }) => items.length === 0 ? null : (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
@@ -291,12 +313,17 @@ export default function TeamMemberPage() {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {items.map(s => (
-                    <span key={s.name} style={{
-                      fontSize: 13, fontWeight: 500,
-                      padding: '5px 12px', borderRadius: 99,
-                      background: bg, color,
-                      border: `1px solid ${color}33`,
-                    }}>
+                    <span
+                      key={s.name}
+                      onClick={() => onSkillTap(s.name)}
+                      style={{
+                        fontSize: 13, fontWeight: 500,
+                        padding: '5px 12px', borderRadius: 99,
+                        background: bg, color,
+                        border: `1px solid ${color}33`,
+                        cursor: 'pointer',
+                      }}
+                    >
                       {s.name}
                     </span>
                   ))}
@@ -306,52 +333,103 @@ export default function TeamMemberPage() {
 
             return (
               <div style={{ marginBottom: 28 }}>
-                <Group label="Assessed" color="#00b482" bg="rgba(0,180,130,0.1)"  items={assessed} />
-                <Group label="Trained"  color="#3b82f6" bg="rgba(59,130,246,0.1)" items={trained} />
+                <Group label="Assessed" color="#00b482" bg="rgba(0,180,130,0.1)"  items={assessed} onSkillTap={setSelectedSkill} />
+                <Group label="Trained"  color="#3b82f6" bg="rgba(59,130,246,0.1)" items={trained}  onSkillTap={setSelectedSkill} />
               </div>
             )
           })()}
 
           {/* Skill Gaps */}
-          {member.skillGaps.length > 0 && (
-            <>
-              <SectionLabel>Skill Gaps</SectionLabel>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
-                {member.skillGaps.map(g => (
-                  <div key={g.name} style={{
-                    padding: '14px 16px', borderRadius: 14,
-                    background: 'var(--surface-primary)',
-                    border: '1px solid var(--outline-tertiary)',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{g.name}</span>
-                      <span style={{ fontSize: 12, color: 'var(--text-hint)' }}>
-                        {g.current}% → <span style={{ color: '#00b482' }}>{g.target}% target</span>
+          {member.skillGaps.length > 0 && (() => {
+            const pages = []
+            for (let i = 0; i < member.skillGaps.length; i += 3) pages.push(member.skillGaps.slice(i, i + 3))
+            const totalPages = pages.length
+            return (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-hint)' }}>Skill Gaps</div>
+                  {totalPages > 1 ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <button
+                        onClick={() => goToGapPage(gapPage - 1)}
+                        disabled={gapPage === 0}
+                        style={{
+                          background: 'none', border: 'none', padding: '2px 6px',
+                          cursor: gapPage === 0 ? 'default' : 'pointer',
+                          color: gapPage === 0 ? 'rgba(255,255,255,0.2)' : 'var(--text-hint)',
+                          display: 'flex', alignItems: 'center',
+                        }}
+                      >
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <span style={{ fontSize: 12, color: 'var(--text-hint)', fontWeight: 500, minWidth: 28, textAlign: 'center' }}>
+                        {gapPage + 1}/{totalPages}
                       </span>
+                      <button
+                        onClick={() => goToGapPage(gapPage + 1)}
+                        disabled={gapPage === totalPages - 1}
+                        style={{
+                          background: 'none', border: 'none', padding: '2px 6px',
+                          cursor: gapPage === totalPages - 1 ? 'default' : 'pointer',
+                          color: gapPage === totalPages - 1 ? 'rgba(255,255,255,0.2)' : 'var(--text-hint)',
+                          display: 'flex', alignItems: 'center',
+                        }}
+                      >
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
                     </div>
-                    {/* Dual bar: current vs target */}
-                    <div style={{ position: 'relative', height: 6, borderRadius: 99, background: 'var(--outline-tertiary)' }}>
-                      {/* Target marker */}
-                      <div style={{
-                        position: 'absolute', top: -3, left: `${g.target}%`,
-                        width: 2, height: 12, background: '#00b482', borderRadius: 1,
-                        transform: 'translateX(-50%)',
-                      }} />
-                      {/* Current bar */}
-                      <div style={{
-                        height: '100%', width: `${g.current}%`,
-                        background: '#ef4444', borderRadius: 99,
-                      }} />
+                  ) : (
+                    <span style={{ fontSize: 12, color: 'var(--text-hint)', fontWeight: 500 }}>{member.skillGaps.length} total</span>
+                  )}
+                </div>
+                <div
+                  ref={gapScrollRef}
+                  style={{
+                    display: 'flex',
+                    overflowX: 'auto', scrollbarWidth: 'none',
+                    scrollSnapType: 'x mandatory',
+                    gap: 0,
+                    marginBottom: 28,
+                  }}
+                >
+                  {pages.map((page, pi) => (
+                    <div key={pi} style={{
+                      minWidth: '100%', flexShrink: 0,
+                      scrollSnapAlign: 'start',
+                      display: 'flex', flexDirection: 'column', gap: 10,
+                    }}>
+                      {page.map(g => (
+                        <div key={g.name} style={{
+                          padding: '14px 16px', borderRadius: 14,
+                          background: 'var(--surface-primary)',
+                          border: '1px solid var(--outline-tertiary)',
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{g.name}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-hint)' }}>
+                              {g.current}% → <span style={{ color: '#00b482' }}>{g.target}% target</span>
+                            </span>
+                          </div>
+                          <div style={{ position: 'relative', height: 4, borderRadius: 99, background: 'var(--outline-tertiary)' }}>
+                            <div style={{ position: 'absolute', top: -2, left: `${g.target}%`, width: 2, height: 8, background: '#00b482', borderRadius: 1, transform: 'translateX(-50%)' }} />
+                            <div style={{ height: '100%', width: `${g.current}%`, background: '#ef4444', borderRadius: 99 }} />
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                            <span style={{ fontSize: 11, color: '#ef4444' }}>Current: {g.current}%</span>
+                            <span style={{ fontSize: 11, color: 'var(--text-hint)' }}>Gap: {g.target - g.current}pts</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                      <span style={{ fontSize: 11, color: '#ef4444' }}>Current: {g.current}%</span>
-                      <span style={{ fontSize: 11, color: 'var(--text-hint)' }}>Gap: {g.target - g.current}pts</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+                  ))}
+                </div>
+              </>
+            )
+          })()}
 
           {/* Active Learning */}
           <SectionLabel>Active Learning</SectionLabel>
@@ -438,7 +516,7 @@ export default function TeamMemberPage() {
         <button
           onClick={() => setAssignOpen(true)}
           style={{
-            width: '100%', padding: '14px', borderRadius: 100,
+            width: '100%', padding: '11px', borderRadius: 100,
             background: '#fff', border: 'none',
             fontSize: 15, fontWeight: 600, color: '#111',
             cursor: 'pointer', fontFamily: 'inherit',
@@ -450,6 +528,14 @@ export default function TeamMemberPage() {
 
       {assignOpen && (
         <AssignModal member={member} onClose={() => setAssignOpen(false)} />
+      )}
+
+      {selectedSkill && (
+        <SkillDetailSheet
+          skillName={selectedSkill}
+          onClose={() => setSelectedSkill(null)}
+          onAssign={() => { setSelectedSkill(null); setAssignOpen(true) }}
+        />
       )}
     </div>
   )

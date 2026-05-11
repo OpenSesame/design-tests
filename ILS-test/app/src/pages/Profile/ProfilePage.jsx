@@ -5,6 +5,7 @@ import { skillAreasByRole, recentActivity } from '../../data/mockProfile'
 import { feedItems } from '../../data/mockFeed'
 import FeedStatGrid from '../../components/feed/FeedStatGrid'
 import SkillChip from '../../components/profile/SkillChip'
+import SkillDetailSheet from '../Manager/SkillDetailSheet'
 import RecentActivityItem from '../../components/profile/RecentActivityItem'
 
 const roleLabels = {
@@ -93,6 +94,7 @@ const savedItems = [
 
 function ProfileTab({ user }) {
   const skills = skillAreasByRole[user.role] || skillAreasByRole['ic']
+  const [selectedSkill, setSelectedSkill] = useState(null)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: '24px 20px' }}>
@@ -158,9 +160,19 @@ function ProfileTab({ user }) {
       <section>
         <h2 style={sectionLabel}>Skills You're Building</h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {skills.map(s => <SkillChip key={s} label={s} />)}
+          {skills.map(s => (
+            <SkillChip key={s} label={s} onClick={() => setSelectedSkill(s)} />
+          ))}
         </div>
       </section>
+
+      {selectedSkill && (
+        <SkillDetailSheet
+          skillName={selectedSkill}
+          onClose={() => setSelectedSkill(null)}
+          onAssign={() => setSelectedSkill(null)}
+        />
+      )}
 
       {/* Recently Completed */}
       <section>

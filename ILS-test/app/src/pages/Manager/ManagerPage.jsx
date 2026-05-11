@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { team, teamMembers, teamSkillGaps, catalogSuggestions, activePrograms, statusConfig, skillInfo } from '../../data/teamData'
 import SkillDetailSheet from './SkillDetailSheet'
@@ -17,8 +17,8 @@ function SectionLabel({ children }) {
 
 function ProgressBar({ value, color }) {
   return (
-    <div style={{ height: 3, borderRadius: 99, background: 'var(--outline-tertiary)', overflow: 'hidden' }}>
-      <div style={{ height: '100%', width: `${value}%`, background: color || 'var(--brand)', borderRadius: 99 }} />
+    <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' }}>
+      <div style={{ height: '100%', width: `${value}%`, background: color || 'rgba(255,255,255,0.7)', borderRadius: 99 }} />
     </div>
   )
 }
@@ -57,35 +57,9 @@ function SkillGapCard({ gap, onSkillTap }) {
 
       {/* Who's missing — avatar stack + coverage count */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex' }}>
-            {teamMembers.filter(m => {
-              const s = m.skills.find(sk => sk.name === gap.skill)
-              return !s || s.proficiency < 60
-            }).slice(0, 3).map((m, i) => (
-              <img key={m.id} src={m.avatar} alt={m.name} style={{
-                width: 22, height: 22, borderRadius: '50%', objectFit: 'cover',
-                border: '2px solid var(--surface-primary)',
-                marginLeft: i === 0 ? 0 : -6,
-              }} />
-            ))}
-            {gap.weak > 3 && (
-              <div style={{
-                width: 22, height: 22, borderRadius: '50%',
-                background: 'var(--surface-tertiary)',
-                border: '2px solid var(--surface-primary)',
-                marginLeft: -6,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 9, fontWeight: 700, color: 'var(--text-hint)',
-              }}>
-                +{gap.weak - 3}
-              </div>
-            )}
-          </div>
-          <span style={{ fontSize: 12, color: 'var(--text-hint)' }}>
-            {gap.weak} of {gap.total} need training
-          </span>
-        </div>
+        <span style={{ fontSize: 12, color: 'var(--text-hint)' }}>
+          {gap.weak} of {gap.total} need training
+        </span>
         <div style={{ color: 'var(--text-hint)', display: 'flex', alignItems: 'center' }}>
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
             <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -116,6 +90,7 @@ function MemberRow({ member, onTap }) {
           <span style={{
             fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99,
             background: sc.bg, color: sc.color, flexShrink: 0,
+            textTransform: 'uppercase', letterSpacing: '0.05em',
           }}>
             {sc.label}
           </span>
@@ -318,7 +293,29 @@ export default function ManagerPage() {
   const [assignSkill, setAssignSkill] = useState(null)
   const [skillDetailSkill, setSkillDetailSkill] = useState(null)
 
+  const [gapPage, setGapPage] = useState(0)
+  const gapScrollRef = useRef(null)
+
   const onTrackCount = teamMembers.filter(m => m.status === 'on-track').length
+
+  const goToGapPage = (newPage) => {
+    if (!gapScrollRef.current) return
+    const totalPages = Math.ceil(teamSkillGaps.length / 3)
+    const page = Math.max(0, Math.min(newPage, totalPages - 1))
+    setGapPage(page)
+    gapScrollRef.current.scrollTo({ left: page * gapScrollRef.current.offsetWidth, behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    const el = gapScrollRef.current
+    if (!el) return
+    const onScroll = () => {
+      const page = Math.round(el.scrollLeft / el.offsetWidth)
+      setGapPage(page)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
 
   const openAssign = (skill = null) => {
     setSkillDetailSkill(null)
@@ -335,25 +332,11 @@ export default function ManagerPage() {
     <div style={{ flex: 1, paddingBottom: 96 }}>
       {/* Header */}
       <div style={{ padding: '24px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2 }}>
-          <div>
-            <div style={{ fontSize: 13, color: 'var(--text-hint)', marginBottom: 4 }}>Your Team</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-              {team.name}
-            </div>
+        <div style={{ marginBottom: 2 }}>
+          <div style={{ fontSize: 13, color: 'var(--text-hint)', marginBottom: 4 }}>Your Team</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+            {team.name}
           </div>
-          <button
-            onClick={() => openAssign()}
-            style={{
-              padding: '8px 16px', borderRadius: 100,
-              background: '#fff', border: 'none',
-              fontSize: 13, fontWeight: 600, color: '#111',
-              cursor: 'pointer', fontFamily: 'inherit',
-              marginTop: 4,
-            }}
-          >
-            Assign +
-          </button>
         </div>
         <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>
           {teamMembers.length} direct reports · {onTrackCount} on track
@@ -362,12 +345,76 @@ export default function ManagerPage() {
 
       {/* Team Skill Gaps */}
       <div style={{ padding: '28px 20px 0' }}>
-        <SectionLabel>Team Skill Gaps</SectionLabel>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {teamSkillGaps.map(gap => (
-            <SkillGapCard key={gap.skill} gap={gap} onSkillTap={setSkillDetailSkill} />
-          ))}
-        </div>
+        {(() => {
+          const pages = []
+          for (let i = 0; i < teamSkillGaps.length; i += 3) pages.push(teamSkillGaps.slice(i, i + 3))
+          const totalPages = pages.length
+          return (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-hint)' }}>Team Skill Gaps</div>
+                {totalPages > 1 ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <button
+                      onClick={() => goToGapPage(gapPage - 1)}
+                      disabled={gapPage === 0}
+                      style={{
+                        background: 'none', border: 'none', padding: '2px 6px',
+                        cursor: gapPage === 0 ? 'default' : 'pointer',
+                        color: gapPage === 0 ? 'rgba(255,255,255,0.2)' : 'var(--text-hint)',
+                        display: 'flex', alignItems: 'center',
+                      }}
+                    >
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <span style={{ fontSize: 12, color: 'var(--text-hint)', fontWeight: 500, minWidth: 28, textAlign: 'center' }}>
+                      {gapPage + 1}/{totalPages}
+                    </span>
+                    <button
+                      onClick={() => goToGapPage(gapPage + 1)}
+                      disabled={gapPage === totalPages - 1}
+                      style={{
+                        background: 'none', border: 'none', padding: '2px 6px',
+                        cursor: gapPage === totalPages - 1 ? 'default' : 'pointer',
+                        color: gapPage === totalPages - 1 ? 'rgba(255,255,255,0.2)' : 'var(--text-hint)',
+                        display: 'flex', alignItems: 'center',
+                      }}
+                    >
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: 12, color: 'var(--text-hint)', fontWeight: 500 }}>{teamSkillGaps.length} total</span>
+                )}
+              </div>
+              <div
+                ref={gapScrollRef}
+                style={{
+                  display: 'flex',
+                  overflowX: 'auto', scrollbarWidth: 'none',
+                  scrollSnapType: 'x mandatory',
+                  gap: 0,
+                }}
+              >
+                {pages.map((page, pi) => (
+                  <div key={pi} style={{
+                    minWidth: '100%', flexShrink: 0,
+                    scrollSnapAlign: 'start',
+                    display: 'flex', flexDirection: 'column', gap: 10,
+                  }}>
+                    {page.map(gap => (
+                      <SkillGapCard key={gap.skill} gap={gap} onSkillTap={setSkillDetailSkill} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </>
+          )
+        })()}
       </div>
 
       {/* Team Members */}
@@ -414,6 +461,25 @@ export default function ManagerPage() {
       {assignOpen && (
         <AssignModal preselectedSkill={assignSkill} onClose={closeAssign} />
       )}
+
+      {/* Sticky Assign CTA */}
+      <div style={{
+        position: 'fixed', bottom: 60, left: 0, right: 0,
+        padding: '12px 20px',
+        background: 'linear-gradient(to top, var(--surface-secondary) 60%, transparent)',
+      }}>
+        <button
+          onClick={() => openAssign()}
+          style={{
+            width: '100%', padding: '11px', borderRadius: 100,
+            background: '#fff', border: 'none',
+            fontSize: 15, fontWeight: 600, color: '#111',
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          Assign Learning
+        </button>
+      </div>
     </div>
   )
 }

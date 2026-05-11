@@ -91,8 +91,11 @@ export const teamMembers = [
       { name: 'Leadership',    proficiency: 28 },
     ],
     skillGaps: [
-      { name: 'Leadership',    current: 28, target: 60 },
-      { name: 'Communication', current: 38, target: 65 },
+      { name: 'Leadership',        current: 28, target: 60 },
+      { name: 'Communication',     current: 38, target: 65 },
+      { name: 'Data Literacy',     current: 42, target: 70 },
+      { name: 'Negotiation',       current: 20, target: 55 },
+      { name: 'Strategic Thinking',current: 15, target: 50 },
     ],
     trainingHistory: [
       { title: 'Business Writing',    type: 'Course', date: 'Feb 2024', duration: '2h',  skill: 'Communication' },
@@ -102,10 +105,12 @@ export const teamMembers = [
 ]
 
 export const teamSkillGaps = [
-  { skill: 'Leadership',    weak: 3, total: 4, criticality: 9, criticalityLabel: 'Critical' },
-  { skill: 'Data Literacy', weak: 2, total: 4, criticality: 7, criticalityLabel: 'High' },
-  { skill: 'Communication', weak: 2, total: 4, criticality: 6, criticalityLabel: 'High' },
-  { skill: 'Finance',       weak: 2, total: 4, criticality: 5, criticalityLabel: 'Medium' },
+  { skill: 'Leadership',        weak: 3, total: 4, criticality: 9, criticalityLabel: 'Critical' },
+  { skill: 'Data Literacy',     weak: 2, total: 4, criticality: 7, criticalityLabel: 'High' },
+  { skill: 'Communication',     weak: 2, total: 4, criticality: 6, criticalityLabel: 'High' },
+  { skill: 'Finance',           weak: 2, total: 4, criticality: 5, criticalityLabel: 'Medium' },
+  { skill: 'Negotiation',       weak: 3, total: 4, criticality: 4, criticalityLabel: 'Medium' },
+  { skill: 'Strategic Thinking',weak: 2, total: 4, criticality: 3, criticalityLabel: 'Medium' },
 ]
 
 export const skillInfo = {

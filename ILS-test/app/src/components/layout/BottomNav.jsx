@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 function HomeIcon({ active }) {
   return (
@@ -63,11 +63,19 @@ function Avatar({ active }) {
 }
 
 export default function BottomNav() {
+  const { pathname } = useLocation()
+
+  const isFeedActive    = pathname === '/feed'
+  // Team section includes individual member pages
+  const isTeamActive    = pathname === '/manager' || pathname.startsWith('/team-member/')
+  const isProfileActive = pathname === '/profile'
+  const isPlayActive    = pathname.startsWith('/watch/')
+
   const tabs = [
-    { to: '/feed',        icon: (active) => <HomeIcon active={active} /> },
-    { to: '/watch/f-001', icon: (active) => <PlayIcon active={active} /> },
-    { to: '/manager',     icon: (active) => <TeamIcon active={active} /> },
-    { to: '/profile',     icon: (active) => <Avatar active={active} /> },
+    { to: '/feed',        icon: <HomeIcon active={isFeedActive} />,    active: isFeedActive    },
+    { to: '/watch/f-001', icon: <PlayIcon active={isPlayActive} />,    active: isPlayActive    },
+    { to: '/manager',     icon: <TeamIcon active={isTeamActive} />,    active: isTeamActive    },
+    { to: '/profile',     icon: <Avatar  active={isProfileActive} />,  active: isProfileActive },
   ]
 
   return (
@@ -88,7 +96,7 @@ export default function BottomNav() {
           to={to}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px 14px', textDecoration: 'none' }}
         >
-          {({ isActive }) => icon(isActive)}
+          {icon}
         </NavLink>
       ))}
     </nav>

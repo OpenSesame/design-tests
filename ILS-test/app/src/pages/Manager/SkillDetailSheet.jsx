@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { teamMembers, teamSkillGaps, skillInfo, catalogSuggestions } from '../../data/teamData'
 
 const PROFICIENT_THRESHOLD = 70
@@ -13,15 +14,23 @@ function categorizeMember(member, skillName) {
   return 'needs'
 }
 
-function MemberChip({ member, sublabel }) {
+function MemberChip({ member, sublabel, onClick }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0' }}>
+    <div
+      onClick={onClick}
+      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', cursor: onClick ? 'pointer' : 'default' }}
+    >
       <img src={member.avatar} alt={member.name}
         style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-      <div>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{member.name}</div>
         <div style={{ fontSize: 12, color: 'var(--text-hint)' }}>{member.role}{sublabel ? ` · ${sublabel}` : ''}</div>
       </div>
+      {onClick && (
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" style={{ color: 'var(--text-hint)', flexShrink: 0 }}>
+          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
     </div>
   )
 }
@@ -45,7 +54,7 @@ function ContentRow({ item }) {
   )
 }
 
-function GroupSection({ label, color, dotColor, members, sublabelFn }) {
+function GroupSection({ label, color, dotColor, members, sublabelFn, onMemberTap }) {
   if (members.length === 0) return null
   return (
     <div style={{ marginBottom: 20 }}>
@@ -57,7 +66,12 @@ function GroupSection({ label, color, dotColor, members, sublabelFn }) {
       </div>
       <div style={{ paddingLeft: 16, borderLeft: '1px solid var(--outline-tertiary)' }}>
         {members.map(m => (
-          <MemberChip key={m.id} member={m} sublabel={sublabelFn ? sublabelFn(m) : null} />
+          <MemberChip
+            key={m.id}
+            member={m}
+            sublabel={sublabelFn ? sublabelFn(m) : null}
+            onClick={onMemberTap ? () => onMemberTap(m) : undefined}
+          />
         ))}
       </div>
     </div>
@@ -71,7 +85,13 @@ const criticalityConfig = {
 }
 
 export default function SkillDetailSheet({ skillName, onClose, onAssign }) {
+  const navigate = useNavigate()
   const [trainingExpanded, setTrainingExpanded] = useState(true)
+
+  function handleMemberTap(member) {
+    onClose()
+    navigate(`/team-member/${member.id}`)
+  }
 
   const info = skillInfo[skillName]
   const content = info?.content || catalogSuggestions.slice(0, 3)
@@ -181,18 +201,21 @@ export default function SkillDetailSheet({ skillName, onClose, onAssign }) {
             color="#00b482" dotColor="#00b482"
             members={verified}
             sublabelFn={proficiencyLabel}
+            onMemberTap={handleMemberTap}
           />
           <GroupSection
             label="Training completed"
             color="#3b82f6" dotColor="#3b82f6"
             members={trained}
             sublabelFn={trainedLabel}
+            onMemberTap={handleMemberTap}
           />
           <GroupSection
             label="Needs training"
             color="#f59e0b" dotColor="#f59e0b"
             members={needs}
             sublabelFn={() => 'Not yet assigned'}
+            onMemberTap={handleMemberTap}
           />
 
           {/* Training — collapsable, at bottom */}
