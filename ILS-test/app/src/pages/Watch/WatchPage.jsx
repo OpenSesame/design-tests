@@ -177,7 +177,7 @@ function UtilityPanel({ item, layer, onBack, onTitleTap, onOverflowTap }) {
 
   return (
     <div style={{
-      position: 'absolute', bottom: 20, left: 16, right: 16, zIndex: 30,
+      position: 'absolute', bottom: 80, left: 16, right: 16, zIndex: 30,
       display: 'flex', alignItems: 'center', gap: 10,
       background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(14px)',
       WebkitBackdropFilter: 'blur(14px)',
@@ -562,7 +562,7 @@ export default function WatchPage() {
       {/* Slide indicator */}
       {layer === 'bottom' && (
         <div style={{
-          position: 'absolute', bottom: 90, left: 0, right: 0,
+          position: 'absolute', bottom: 150, left: 0, right: 0,
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
           zIndex: 20,
         }}>
@@ -585,7 +585,7 @@ export default function WatchPage() {
       {caption && (
         <div style={{
           position: 'absolute',
-          bottom: layer === 'bottom' ? 210 : (hasSeries ? 148 : 104),
+          bottom: layer === 'bottom' ? 270 : (hasSeries ? 208 : 164),
           left: 20, right: 20, zIndex: 20,
         }}>
           <p style={{
@@ -603,7 +603,7 @@ export default function WatchPage() {
         <button
           onClick={() => { setLayer('bottom'); setCurrentSlide(0); setPanelState(null) }}
           style={{
-            position: 'absolute', bottom: 76, left: '50%', transform: 'translateX(-50%)',
+            position: 'absolute', bottom: 136, left: '50%', transform: 'translateX(-50%)',
             zIndex: 20, whiteSpace: 'nowrap',
             padding: '11px 22px', borderRadius: 'var(--radius-pill)',
             background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)',
@@ -629,7 +629,7 @@ export default function WatchPage() {
       />
 
       {/* Progress bar */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.12)', zIndex: 35 }}>
+      <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.12)', zIndex: 35 }}>
         <div style={{
           height: '100%', background: 'var(--brand)',
           width: `${progress}%`,

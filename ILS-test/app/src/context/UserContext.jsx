@@ -4,6 +4,8 @@ const defaultUser = {
   id: 'u-001',
   name: 'Alex Rivera',
   role: 'manager',
+  roleLabel: 'Manager',
+  department: 'North America Sales',
   industry: 'technology',
   aspiration: 'build high-performing teams',
   aspirationIndex: 0,

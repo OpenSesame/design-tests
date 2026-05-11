@@ -12,6 +12,8 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 1.0,
+    // peerCompletions: aggregated counts only — no individual user data (SC-003)
+    peerCompletions: { manager: 5, director: 3, vp: 2, ic: 8 },
     series: [
       { id: 1, caption: 'Most feedback lands wrong — here\'s why', thumbnailUrl: 'https://picsum.photos/seed/fb1/400/700' },
       { id: 2, caption: 'The framing shift that changes everything', thumbnailUrl: 'https://picsum.photos/seed/fb2/400/700' },
@@ -32,6 +34,8 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp'],
     matchedIndustries: ['all'],
     weight: 1.0,
+    // In completedCourseIds — signal must be suppressed despite peerCompletions data (FR-007)
+    peerCompletions: { manager: 4, director: 2, vp: 1, ic: 6 },
   },
   {
     id: 'f-003',
@@ -55,6 +59,7 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 0.95,
+    peerCompletions: { manager: 7, director: 4, vp: 3, ic: 2 },
     series: [
       { id: 1, caption: 'Why certainty is the wrong goal', thumbnailUrl: 'https://picsum.photos/seed/lu1/400/700' },
       { id: 2, caption: 'The framework for deciding without full information', thumbnailUrl: 'https://picsum.photos/seed/lu2/400/700' },
@@ -76,6 +81,7 @@ export const feedItems = [
     matchedRoles: ['all'],
     matchedIndustries: ['all'],
     weight: 0.9,
+    // No peerCompletions — compliance content; social proof not appropriate here
   },
   {
     id: 'f-006',
@@ -90,6 +96,9 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 0.85,
+    // ic count is 1 (below threshold) — demonstrates threshold suppression for ic role
+    // _fallback: department count for when role count is below threshold (US3)
+    peerCompletions: { manager: 3, director: 5, vp: 4, ic: 1, _fallback: 9 },
   },
   {
     id: 'f-007',
@@ -112,6 +121,7 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite', 'ic'],
     matchedIndustries: ['all'],
     weight: 0.9,
+    peerCompletions: { manager: 6, director: 3, vp: 2, ic: 9 },
   },
   {
     id: 'f-009',
@@ -126,6 +136,7 @@ export const feedItems = [
     matchedRoles: ['all'],
     matchedIndustries: ['all'],
     weight: 0.85,
+    // No peerCompletions — intentionally omitted to show signal is selective
   },
   {
     id: 'f-010',
@@ -140,6 +151,9 @@ export const feedItems = [
     matchedRoles: ['ic', 'manager', 'director'],
     matchedIndustries: ['all'],
     weight: 0.8,
+    // manager count is 1 (below threshold) — proves threshold suppression for manager role
+    // _fallback triggers for manager role (count=1 < 2)
+    peerCompletions: { manager: 1, director: 4, vp: 3, ic: 5, _fallback: 12 },
   },
   {
     id: 'f-011',
@@ -154,6 +168,8 @@ export const feedItems = [
     matchedRoles: ['all'],
     matchedIndustries: ['all'],
     weight: 0.75,
+    // In completedCourseIds — signal must be suppressed despite peerCompletions data (FR-007)
+    peerCompletions: { manager: 8, director: 5, vp: 3, ic: 4 },
   },
   {
     id: 'f-012',
@@ -178,6 +194,7 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['all'],
     weight: 0.7,
+    peerCompletions: { manager: 4, director: 6, vp: 5, ic: 2 },
     series: [
       { id: 1, caption: 'Reframing negotiation as problem-solving', thumbnailUrl: 'https://picsum.photos/seed/neg1/400/700' },
       { id: 2, caption: 'Establishing your BATNA before you walk in', thumbnailUrl: 'https://picsum.photos/seed/neg2/400/700' },
@@ -199,6 +216,8 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp', 'c-suite'],
     matchedIndustries: ['tech', 'finance', 'healthcare'],
     weight: 0.75,
+    // _fallback demonstrates fallback alongside a working role signal (US3)
+    peerCompletions: { manager: 9, director: 7, vp: 4, ic: 3, _fallback: 15 },
   },
   {
     id: 'f-015',
@@ -213,5 +232,6 @@ export const feedItems = [
     matchedRoles: ['manager', 'director', 'vp'],
     matchedIndustries: ['all'],
     weight: 0.8,
+    peerCompletions: { manager: 5, director: 4, vp: 2, ic: 6 },
   },
 ]
